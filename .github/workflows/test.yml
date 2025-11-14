@@ -1,0 +1,59 @@
+name: Run Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ['7.4', '8.0', '8.1', '8.2', '8.3']
+
+    name: PHP ${{ matrix.php-version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: json
+          coverage: none
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run PHPUnit tests
+        run: vendor/bin/phpunit
+
+  # TODO: Enable PHPStan once entity PHPDoc types are updated to use proper PHP types
+  # phpstan:
+  #   runs-on: ubuntu-latest
+  #   name: PHPStan Static Analysis
+  #
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Setup PHP
+  #       uses: shivammathur/setup-php@v2
+  #       with:
+  #         php-version: 8.3
+  #         extensions: json
+  #         coverage: none
+  #
+  #     - name: Install dependencies
+  #       run: composer install --prefer-dist --no-progress --no-interaction
+  #
+  #     - name: Run PHPStan
+  #       run: vendor/bin/phpstan analyse --memory-limit=2G

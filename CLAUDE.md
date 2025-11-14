@@ -8,10 +8,12 @@ This document provides a comprehensive guide for AI assistants working with the 
 **Type:** PHP Library
 **Purpose:** PHP client library for the Exact Online API
 **License:** MIT
-**Minimum PHP Version:** 5.5.0
+**Minimum PHP Version:** 7.4.0
 **Primary Dependencies:**
-- guzzlehttp/guzzle ~6.0 (HTTP client)
-- phpunit/phpunit ~4.0 (dev, for testing)
+- guzzlehttp/guzzle ~6.0|~7.0 (HTTP client)
+- ext-json (JSON extension)
+- phpunit/phpunit ^9.6 (dev, for testing)
+- phpstan/phpstan ^2.1 (dev, for static analysis)
 
 **Repository:** https://github.com/picqer/exact-php-client
 **Maintainer:** Picqer (Stephan Groen)
@@ -142,15 +144,20 @@ When adding a new entity to the library:
 
 ### Testing Workflow
 
-**Test Framework:** PHPUnit 4.x
+**Test Framework:** PHPUnit 9.6+
 
 **Running Tests:**
 ```bash
 composer install
-phpunit
-# or
 ./vendor/bin/phpunit
 ```
+
+**Running Static Analysis:**
+```bash
+./vendor/bin/phpstan analyse --memory-limit=2G
+```
+
+Note: PHPStan is configured but may report errors due to legacy PHPDoc type annotations (Guid, Int32, etc.) from the Exact API documentation.
 
 **Test Philosophy:**
 - Tests validate entity structure, not API functionality
@@ -399,10 +406,11 @@ composer install
 
 ### CI/CD
 
-- **Platform:** Travis CI
-- **PHP Versions Tested:** 5.5, 5.6, 7.0, 7.1
-- **Process:** Install dependencies → Run PHPUnit
-- **Configuration:** `.travis.yml`
+- **Platform:** GitHub Actions
+- **PHP Versions Tested:** 7.4, 8.0, 8.1, 8.2, 8.3
+- **Process:** Validate composer.json → Install dependencies → Run PHPUnit
+- **Configuration:** `.github/workflows/test.yml`
+- **Legacy:** `.travis.yml` (deprecated, replaced by GitHub Actions)
 
 ## Troubleshooting Common Issues
 
@@ -542,7 +550,7 @@ When working with this codebase as an AI assistant:
 3. **Validate against Exact API docs:** Always check official Exact Online API documentation
 4. **Add tests:** Every new entity needs a test method in EntityTest.php
 5. **Update CHANGELOG:** Document all additions/changes in CHANGELOG.md
-6. **Preserve compatibility:** This library supports PHP 5.5+, avoid modern PHP syntax
+6. **Preserve compatibility:** This library supports PHP 7.4+, you can use PHP 7.4 features
 7. **Use traits correctly:** Apply `Findable` and `Storable` traits consistently
 8. **Document thoroughly:** PHPDoc is critical for IDE autocomplete
 
@@ -571,7 +579,8 @@ When reviewing or creating code for this project:
 - [ ] Test method added to `EntityTest.php`
 - [ ] CHANGELOG.md updated (if releasing)
 - [ ] Code follows existing style (4 spaces, braces, visibility)
-- [ ] No PHP 7+ exclusive syntax (maintain 5.5 compatibility)
+- [ ] PHP 7.4+ syntax is allowed (minimum version is 7.4.0)
+- [ ] Avoid PHP 8.0+ exclusive features unless necessary (maintain 7.4 compatibility)
 
 ## Resources
 
@@ -583,8 +592,19 @@ When reviewing or creating code for this project:
 
 ## Version Information
 
-**Current Version:** v3.x (Guzzle 6.x)
+**Current Version:** v4.5+ (PHP 7.4+, Guzzle 6/7)
+**Previous Version:** v3.x (PHP 5.5+, Guzzle 6.x)
 **Legacy Version:** v1.x (Guzzle 3.x)
+
+**Major Changes in v4:**
+- Upgraded minimum PHP version to 7.4.0
+- Support for both Guzzle 6 and Guzzle 7
+- Upgraded PHPUnit to 9.6+
+- Added PHPStan static analysis (level 3)
+- Migrated CI/CD from Travis CI to GitHub Actions
+- Testing on PHP 7.4, 8.0, 8.1, 8.2, 8.3
+- Modern PHPUnit configuration with XML schema
+- Added autoload-dev for test namespace
 
 **Major Changes in v3:**
 - Upgraded to Guzzle 6.x
